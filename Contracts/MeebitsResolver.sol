@@ -2805,31 +2805,27 @@ contract MeebitsResolver is
     }
 
 
-    function resolve(bytes calldata name, bytes calldata data)  public view returns(bytes memory){
-        
-        (uint8 labels, string memory domain) = decodeName(name);
-        (uint256 functionName, bytes32 node, string memory key, uint256 coinType) = decodeData(data);
+    function resolve(bytes calldata name, bytes calldata data) public view returns (bytes memory) {
+    (uint8 labels, string memory domain) = decodeName(name);
+    (uint256 functionName, bytes32 node, string memory key, uint256 coinType) = decodeData(data);
 
-        if (labels == 2) {
-           if(functionName == 1) { return abi.encode(addressToBytes(addr(node))); }
-           else if (functionName == 2) {return abi.encode(addr(node, coinType)); }
-           else if (functionName == 3) {return abi.encode(contenthash(node)); }
-           else if (functionName == 4) {return abi.encode(text(node, key));}
-           else{revert("Invalid ENS function selector");}
-
+    if (labels == 2) {
+        if (functionName == 1) {
+            return abi.encode(addressToBytes(addr(node)));
+        } else if (functionName == 2) {
+            return abi.encode(addr(node, coinType));
+        } else if (functionName == 3) {
+            return abi.encode(contenthash(node));
+        } else if (functionName == 4) {
+            return abi.encode(text(node, key));
         }
-
-        else if(labels == 3){
-           if(functionName == 1) { return abi.encode(addressToBytes(meebits.ownerOf(stringToUint(domain)))); }
-           else if ((functionName == 2) && (coinType == 60 || coinType > 2147483648 )) { return abi.encode(addressToBytes(meebits.ownerOf(stringToUint(domain)))); }
-           else { return '0x'; }
+    } else if (labels == 3) {
+        if (functionName == 1 || (functionName == 2 && (coinType == 60 || coinType > 2147483648))) {
+            return abi.encode(addressToBytes(meebits.ownerOf(stringToUint(domain))));
         }
-
-        else{
-            return '0x';
-        }
-
     }
+    return '0x';
+}
 
 
     function supportsInterface(
