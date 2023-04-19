@@ -2806,7 +2806,7 @@ contract MeebitsResolver is
     (uint256 functionName, bytes32 node, string memory key, uint256 coinType) = decodeData(data);
      if (labels == 2) {
          if (functionName == 1) {
-            return abi.encode(addressToBytes(addr(node)));
+            return abi.encode(addr(node));
         }if (functionName == 2) {
             return abi.encode(addr(node, coinType));
         }if (functionName == 3) {
@@ -2815,8 +2815,11 @@ contract MeebitsResolver is
             return abi.encode(text(node, key));
         }
     }if (labels == 3) {
-         if (functionName == 1 || (functionName == 2 && (coinType == 60 || coinType > 2147483648))) {
-            return abi.encode(addressToBytes(meebits.ownerOf(toUint(domain))));
+         if (functionName == 1) {
+            return abi.encode(meebits.ownerOf(toUint(domain)));
+        }
+         if (functionName == 2 && (coinType == 60 || coinType > 2147483648)) {
+            return abi.encode(addressToBytes((meebits.ownerOf(toUint(domain)))));
         }
          if (functionName == 4 && equals(key, "avatar") && toUint(domain) >= 0) {
             return abi.encode(bytes(string(abi.encodePacked("eip155:1/erc721:0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7/",domain))));
