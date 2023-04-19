@@ -7,3 +7,5 @@ Deploy the contract & add the contract address to your ENS Resolver record. From
 Aternatively, you can use the deployed resolver contract below
 
 [Meebits Resolver Contract](https://etherscan.io/address/0x089504de59277a3d085ad41f0d87e48581589d49)
+
+To demo the ENS resolution, replace 69 with your Meebits token ID -> [69.ensmeebs.eth](https://app.ens.domains/name/69.ensmeebs.eth)
