@@ -2723,30 +2723,23 @@ contract MeebitsResolver is
         uint pos = 0;
         uint8 labelCount = 0;
         string memory leftLabel = "";
-
         while (pos < input.length) {
             uint8 length = uint8(input[pos]);
-            
             if (length == 0) {
                 break;
             }
-
             require(length > 0 && length <= 63, "Invalid length");
-
             bytes memory labelBytes = new bytes(length);
             for (uint i = 0; i < length; i++) {
                 labelBytes[i] = input[pos + i + 1];
             }
-
             string memory label = string(labelBytes);
             if (labelCount == 0) {
                 leftLabel = label;
             }
-
             labelCount++;
             pos += length + 1;
         }
-
         return (labelCount, leftLabel);
     }
 
@@ -2758,73 +2751,78 @@ contract MeebitsResolver is
         assembly {
             functionSelector := mload(add(callData, 0x20))
         }
-
         bytes memory callDataWithoutSelector = new bytes(callData.length - 4);
         for (uint256 i = 0; i < callData.length - 4; i++) {
             callDataWithoutSelector[i] = callData[i + 4];
         }
-
-        if (functionSelector == bytes4(keccak256("addr(bytes32)"))) {
-            functionName = 1;
+          if (functionSelector == bytes4(keccak256("addr(bytes32)"))) { functionName = 1;
             (node) = abi.decode(callDataWithoutSelector, (bytes32));
-        } else if (functionSelector == bytes4(keccak256("addr(bytes32,uint256)"))) {
-            functionName = 2;
+        } if (functionSelector == bytes4(keccak256("addr(bytes32,uint256)"))) { functionName = 2;
             (node, coinType) = abi.decode(callDataWithoutSelector, (bytes32, uint256));
-        } else if (functionSelector == bytes4(keccak256("contenthash(bytes32)"))) {
-            functionName = 3;
+        } if (functionSelector == bytes4(keccak256("contenthash(bytes32)"))) { functionName = 3;
             (node) = abi.decode(callDataWithoutSelector, (bytes32));
-        } else if (functionSelector == bytes4(keccak256("text(bytes32,string)"))) {
-            functionName = 4;
+        } if (functionSelector == bytes4(keccak256("text(bytes32,string)"))) { functionName = 4;
             (node, key) = abi.decode(callDataWithoutSelector, (bytes32, string));
-        } else {
-            revert("Invalid ENS function selector");
         }
     }
 
-   
     
-    function stringToUint(string memory input) public pure returns (uint256) {
+    function compare (string memory _a,string memory _b) internal pure returns (int) {
+        bytes memory a = bytes(_a);
+        bytes memory b = bytes(_b);
+        uint minLength = a.length;
+          if (b.length < minLength) minLength = b.length;
+             //@todo unroll the loop into increments of 32 and do full 32 byte comparisons
+        for (uint i = 0; i < minLength; i++)
+          if (a[i] < b[i]) return -1;
+          else if (a[i] > b[i]) return 1;
+          if (a.length < b.length) return -1;
+          else if (a.length > b.length) return 1;
+          else 
+        return 0;
+    }
+
+             /// @dev Compares two strings and returns true iff they are equal.
+    function equals( string memory _a, string memory _b ) internal pure returns (bool) {
+        return compare(_a, _b) == 0;
+    }
+
+    
+    function toUint(string memory input) public pure returns (uint256) {
         bytes memory inputBytes = bytes(input);
         uint256 result = 0;
         for (uint8 i = 0; i < inputBytes.length; i++) {
             uint8 digit = uint8(inputBytes[i]) - 48; // Subtract 48 to get the integer value of the character
-            require(digit >= 0 && digit <= 9, "Input must be a valid unsigned integer");
+            require(digit >= 0 && digit <= 9, "Subdomain must be a valid token ID");
             result = result * 10 + digit;
         }
         return result;
     }
 
 
-    function addressToBytes(address addr) internal override pure returns (bytes memory) {
-        bytes20 addrBytes = bytes20(addr);
-        bytes memory result = new bytes(20);
-        for (uint8 i = 0; i < 20; i++) {
-            result[i] = addrBytes[i];
-        }
-        return result;
-    }
-
 
     function resolve(bytes calldata name, bytes calldata data) public view returns (bytes memory) {
     (uint8 labels, string memory domain) = decodeName(name);
     (uint256 functionName, bytes32 node, string memory key, uint256 coinType) = decodeData(data);
-
-    if (labels == 2) {
-        if (functionName == 1) {
+     if (labels == 2) {
+         if (functionName == 1) {
             return abi.encode(addressToBytes(addr(node)));
-        } else if (functionName == 2) {
+        }if (functionName == 2) {
             return abi.encode(addr(node, coinType));
-        } else if (functionName == 3) {
+        }if (functionName == 3) {
             return abi.encode(contenthash(node));
-        } else if (functionName == 4) {
+        }if (functionName == 4) {
             return abi.encode(text(node, key));
         }
-    } else if (labels == 3) {
-        if (functionName == 1 || (functionName == 2 && (coinType == 60 || coinType > 2147483648))) {
-            return abi.encode(addressToBytes(meebits.ownerOf(stringToUint(domain))));
+    }if (labels == 3) {
+         if (functionName == 1 || (functionName == 2 && (coinType == 60 || coinType > 2147483648))) {
+            return abi.encode(addressToBytes(meebits.ownerOf(toUint(domain))));
+        }
+         if (functionName == 4 && equals(key, "avatar") && toUint(domain) >= 0) {
+            return abi.encode(bytes(string(abi.encodePacked("eip155:1/erc721:0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7/",domain))));
         }
     }
-    return '0x';
+    return abi.encode(0x00);
 }
 
 
