@@ -6,7 +6,7 @@ Deploy the contract & add the contract address to your ENS Resolver record. From
 
 Aternatively, you can use the deployed resolver contract below
 
-[Meebits Resolver Contract](https://etherscan.io/address/0x089504de59277a3d085ad41f0d87e48581589d49)
+[Meebits Resolver Contract](https://etherscan.io/address/0x37bac6f21cef28116ef060751fe61cb800cfa34d)
 
 <img src="https://i.ibb.co/jfjVZV0/Screen-Shot-2023-04-19-at-2-10-41-PM.png)"  width="60%">
 
