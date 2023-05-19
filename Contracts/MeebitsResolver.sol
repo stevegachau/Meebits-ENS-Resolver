@@ -1068,7 +1068,7 @@ contract MeebitsResolver is
                 return abi.encode(addressToBytes(meebits.ownerOf(toUint(domain))));
             }
             if (functionName == 4 && equals(key, "avatar") && toUint(domain) >= 0) {
-                return abi.encode(bytes(string(abi.encodePacked("eip155:1/erc721:0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7/",domain))));
+                return abi.encode(bytes(abi.encodePacked("eip155:1/erc721:0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7/",domain)));
             }
             if (functionName == 4 && equals(key, "description") && toUint(domain) >= 0) {
                 return abi.encode(bytes(meebits.name()));
